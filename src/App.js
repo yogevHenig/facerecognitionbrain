@@ -1,26 +1,20 @@
 import React, { Component } from 'react';
-import Particles from 'react-particles-js';
+
+// import components
 import Navigation from './components/Navigation/Navigation.js';
 import Logo from './components/Logo/Logo.js';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm.js';
 import Rank from './components/Rank/Rank.js';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition.js';
-import SignIn from './components/SignIn/SignIn.js';
-import Register from './components/Register/Register.js';
+import BackgroundAnimation from './components/BackgroundAnimation/BackgroundAnimation'
+
+// import containers
+import SignIn from './containers/SignIn/SignIn.js';
+import Register from './containers/Register/Register.js';
+
 import { apiCall } from './api/api';
 import './App.css'; 
 
-const particlesOptions = {
-  particles: {
-    number: {
-      value: 200,
-      desity: {
-        enable: true,
-        value_area: 800 
-      }
-    }
-  }
-}
 
 const initialState = {
   input: '',
@@ -105,10 +99,9 @@ class App extends Component {
 
   render(){
     const { isSignedIn, imageUrl, route, faces } =  this.state;
-    //console.log('init faces', faces);
     return (
       <div className="App">
-        <Particles className='particles' params={particlesOptions} />
+        <BackgroundAnimation />
         <Navigation isSignedIn= {isSignedIn} onRouteChange = { this.onRouteChange  }/>
         { route === 'home'
           ? <div>
