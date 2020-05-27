@@ -1,17 +1,30 @@
 import React from 'react';
-import './FaceRecognition.css';
+import Box from '../Box/Box';
 
-const FaceRecognition = ({ imageUrl, box }) => {
+const FaceRecognition = ({ imageUrl, faces }) => {
 	return (
 		<div className='center ma'>
 			<div className='absolute mt2'> 
 				<img id='inputImg' alt='' src= { imageUrl } width='500px' hight='auto' />
-				<div className='bounding-Box' 
-						 style={{top: box.topRow, right: box.rightCol, bottom: box.bottomRow, left: box.leftCol}}>
-				</div>
+		  	<div>
+		  		{
+			  		faces.map( (face, i) => {
+							return (
+								<Box  
+								key= {i}
+								topRow= { face.topRow }
+								rightCol= { face.rightCol }
+								bottomRow= { face.bottomRow }
+								leftCol= { face.leftCol }
+								/>
+							); 
+						})
+					}
+		    </div>
 		 	</div>
 		</div>
 	);
 }
 
 export default FaceRecognition;
+

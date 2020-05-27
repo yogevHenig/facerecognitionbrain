@@ -1,4 +1,6 @@
 import React from 'react';
+import { apiCall } from '../../api/api';
+
 
 class Register extends React.Component {
 	
@@ -24,16 +26,12 @@ class Register extends React.Component {
 	}
 
 	onSubmitRegister = () => {
-		fetch('https://quiet-temple-55004.herokuapp.com/register', {
-			method: 'post',
-			headers: { 'Content-Type' : 'application/json' },
-			body: JSON.stringify({
+		let bodyObject = {
 				name: this.state.registerName,
 				email: this.state.registerEmail,
 				password: this.state.registerPassword,
-			})
-		})
-			.then(response =>  response.json())
+		}
+		apiCall('post', 'register', bodyObject)
 			.then(user => {
 				if (user.id) {
 					this.props.loadUser(user);

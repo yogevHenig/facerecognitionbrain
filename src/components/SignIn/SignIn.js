@@ -1,4 +1,5 @@
 import React from 'react';
+import { apiCall } from '../../api/api';
 
 class SignIn extends React.Component	{
 	constructor(props) {
@@ -18,15 +19,11 @@ class SignIn extends React.Component	{
 	}
 
 	onSubmitSignIn = () => {
-		fetch('https://quiet-temple-55004.herokuapp.com/signin', {
-			method: 'post',
-			headers: { 'Content-Type' : 'application/json' },
-			body: JSON.stringify({
-				email: this.state.signInEmail,
-				password: this.state.signInPassword,
-			})
-		})
-			.then(response =>  response.json())
+		let bodyObject = {
+			email: this.state.signInEmail,
+			password: this.state.signInPassword,
+		}
+		apiCall('post', 'signin', bodyObject)
 			.then(user => {
 				if (user.id) {
 					this.props.loadUser(user);
@@ -81,3 +78,4 @@ class SignIn extends React.Component	{
 }
 
 export default SignIn;
+

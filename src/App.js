@@ -7,6 +7,7 @@ import Rank from './components/Rank/Rank.js';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition.js';
 import SignIn from './components/SignIn/SignIn.js';
 import Register from './components/Register/Register.js';
+import { apiCall } from './api/api';
 import './App.css'; 
 
 const particlesOptions = {
@@ -24,7 +25,7 @@ const particlesOptions = {
 const initialState = {
   input: '',
   imageUrl: '',
-  box: {},
+  faces: [],
   route: 'signin',
   isSignedIn: false,
   user: {
@@ -52,21 +53,25 @@ class App extends Component {
     }});
   }
 
-  calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+  calculateFacesLocation = (data) => {
     const image = document.getElementById('inputImg');
     const width = (Number)(image.width);
     const height = (Number)(image.height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
+
+    let faces = (data.outputs[0].data.regions).map(region => {
+      let face = region.region_info.bounding_box;
+      return {
+        leftCol: face.left_col * width,
+        topRow: face.top_row * height,
+        rightCol: width - (face.right_col * width),
+        bottomRow: height - (face.bottom_row * height)
+      }
+    })
+    return faces;
   }
 
-  displayFaceBox = (box) => {
-    this.setState({box: box});
+  displayFaceBoxes = (faces) => {
+    this.setState({faces: faces});
   }
 
   onInputChange = (event) => {
@@ -75,30 +80,16 @@ class App extends Component {
 
   onPictureSubmit = (event) => {
     this.setState({ imageUrl: this.state.input });
-    fetch('https://quiet-temple-55004.herokuapp.com/imageurl', {
-      method: 'post',
-      headers: { 'Content-Type' : 'application/json' },
-      body: JSON.stringify({
-        input: this.state.input
-      })
-    })
-    .then(response => response.json())
+    apiCall('post','imageurl', {input: this.state.input})
     .then(response => {
       if (response){
-        fetch('https://quiet-temple-55004.herokuapp.com/image', {
-          method: 'put',
-          headers: { 'Content-Type' : 'application/json' },
-          body: JSON.stringify({
-            id: this.state.user.id
-          })
-        })
-        .then(response => response.json())
+        apiCall('put', 'image', { id: this.state.user.id })
         .then(count => {
           this.setState(Object.assign(this.state.user, { entries: count }))
         })
         .catch(console.log);
       }
-      this.displayFaceBox(this.calculateFaceLocation(response))
+      this.displayFaceBoxes(this.calculateFacesLocation(response))
     })
     .catch(err => console.log(err)); 
   }
@@ -113,7 +104,8 @@ class App extends Component {
   }
 
   render(){
-    const { isSignedIn, imageUrl, route, box } =  this.state;
+    const { isSignedIn, imageUrl, route, faces } =  this.state;
+    //console.log('init faces', faces);
     return (
       <div className="App">
         <Particles className='particles' params={particlesOptions} />
@@ -129,7 +121,7 @@ class App extends Component {
                   onInputChange={ this.onInputChange } 
                   onButtonSubmit={ this.onPictureSubmit }
                 />
-                <FaceRecognition box={box} imageUrl={ imageUrl }/>
+                <FaceRecognition faces={faces} imageUrl={ imageUrl }/>
               </div>
           : (
               route === 'signin'
