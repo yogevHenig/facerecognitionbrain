@@ -1,5 +1,6 @@
 import React from 'react';
 import { apiCall } from '../../api/api';
+import './SignIn.css';
 
 class SignIn extends React.Component	{
 	constructor(props) {
@@ -18,19 +19,34 @@ class SignIn extends React.Component	{
 		this.setState({ signInPassword: event.target.value })
 	}
 
+	saveAuthTokenInSession = (token) => {
+		// object that saved between browser refresh
+		window.sessionStorage.setItem('token', token); // stores the token we get from the backend in the browser storage
+		// also possible to use sessions.storage. the diffrence is sessionstorage is unique to browser tab - not exist if you open new tab. 
+	}
+
 	onSubmitSignIn = () => {
 		let bodyObject = {
 			email: this.state.signInEmail,
 			password: this.state.signInPassword,
 		}
 		apiCall('post', 'signin', bodyObject)
-			.then(user => {
-				if (user.id) {
-					this.props.loadUser(user);
-					this.props.onRouteChange('home');
-				}
-			})
+		.then(response =>  response.json())
+		.then(data => {
+			if (data.userId && data.success === 'true') {
+				this.saveAuthTokenInSession(data.token);
+        apiCall('get', `profile/${data.userId}`, null, { 'Authorization' : data.token })
+        .then(response =>  response.json())
+        .then(user => {
+          if (user && user.email){
+            this.props.loadUser(user)
+            this.props.onRouteChange('home');
+          }
+        })
+			}
+		})
 	}
+	
 	render(){
 		const { onRouteChange } = this.props;
 		return (
@@ -42,7 +58,7 @@ class SignIn extends React.Component	{
 				      <div className="mt3">
 				        <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
 				        <input 
-				        	className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
+				        	className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100 hover-black"
 				        	type="email"
 				        	name="email-address"
 				        	id="email-address"
@@ -52,7 +68,7 @@ class SignIn extends React.Component	{
 				      <div className="mv3">
 				        <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>
 				        <input 
-				        	className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
+				        	className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100 hover-black"
 				        	type="password"
 				        	name="password"
 				        	id="password"
@@ -63,7 +79,7 @@ class SignIn extends React.Component	{
 				    <div className="">
 				      <input
 				      	onClick = {this.onSubmitSignIn} 
-				      	className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" 
+				      	className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib " 
 				      	type="submit" 
 				      	value="Sign in" />
 				    </div>
