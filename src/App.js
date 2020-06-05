@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import Navigation from './components/Navigation/Navigation.js';
 import Logo from './components/Logo/Logo.js';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm.js';
-import Rank from './components/Rank/Rank.js';
+import Rank from './containers/Rank/Rank.js';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition.js';
 import BackgroundAnimation from './components/BackgroundAnimation/BackgroundAnimation'
 
@@ -125,6 +125,7 @@ class App extends Component {
 
   onRouteChange = (route) => {
     if (route === 'signout'){
+      window.sessionStorage.removeItem('token');
       return this.setState(initialState);
     } else if (route === 'home') {
       this.setState({ isSignedIn: true })

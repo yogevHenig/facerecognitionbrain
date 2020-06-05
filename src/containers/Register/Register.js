@@ -26,6 +26,12 @@ class Register extends React.Component {
 		this.setState({ registerPassword: event.target.value })
 	}
 
+saveAuthTokenInSession = (token) => {
+		// object that saved between browser refresh
+		window.sessionStorage.setItem('token', token); // stores the token we get from the backend in the browser storage
+		// also possible to use sessions.storage. the diffrence is sessionstorage is unique to browser tab - not exist if you open new tab. 
+	}
+
 	onSubmitRegister = () => {
 		let bodyObject = {
 				name: this.state.registerName,
@@ -34,10 +40,17 @@ class Register extends React.Component {
 		}
 		apiCall('post', 'register', bodyObject)
 		.then(response =>  response.json())
-		.then(user => {
-			if (user.id) {
-				this.props.loadUser(user);
-				this.props.onRouteChange('home');
+		.then(data => {
+			if (data.userId && data.success === 'true') {
+				this.saveAuthTokenInSession(data.token);
+        apiCall('get', `profile/${data.userId}`, null, { 'Authorization' : data.token })
+        .then(response =>  response.json())
+        .then(user => {
+          if (user && user.email){
+            this.props.loadUser(user)
+            this.props.onRouteChange('home');
+          }
+        })
 			}
 		})
 	}
