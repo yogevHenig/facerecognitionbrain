@@ -3,7 +3,7 @@ export const apiCall = (method, endpoint, bodyObject= {}, headresAdditions={}) =
 		return fetch('http://localhost:3000/' + endpoint, {
 			method: method,
 			headers: {
-			 	'Content-Type' : 'application/json',
+			 	'Content-Type' : 'application/json', 
 			 	...headresAdditions 
 			}
 		})
